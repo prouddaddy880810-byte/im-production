@@ -31,6 +31,7 @@ export default function App() {
   const [tab, setTab] = useState("board");
   const [deptStatus, setDeptStatus] = useState(initDeptStatus);
   const [staffData, setStaffData] = useState(initStaff);
+  const [supervisorPhotos, setSupervisorPhotos] = useState({});
   const [jobs, setJobs] = useState(initJobs);
   const [downtime, setDowntime] = useState([]);
   const [flags, setFlags] = useState([]);
@@ -106,6 +107,22 @@ export default function App() {
 
   // Staff
   const updateStaff = (deptId,staffId,val) => setStaffData(prev=>({...prev,[deptId]:prev[deptId].map(s=>s.id===staffId?{...s,name:val}:s)}));
+  const updateStaffPhoto = (deptId,staffId,photoUrl) => setStaffData(prev=>({...prev,[deptId]:prev[deptId].map(s=>s.id===staffId?{...s,photo:photoUrl}:s)}));
+  const handleStaffPhoto = (deptId,staffId,e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => updateStaffPhoto(deptId,staffId,reader.result);
+    reader.readAsDataURL(file);
+  };
+  const getInitials = name => name ? name.trim().split(" ").map(p=>p[0]).join("").slice(0,2).toUpperCase() : "?";
+  const handleSupervisorPhoto = (deptId,e) => {
+    const file = e.target.files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = () => setSupervisorPhotos(prev=>({...prev,[deptId]:reader.result}));
+    reader.readAsDataURL(file);
+  };
 
   // Recording
   const startRecording = async () => {
@@ -288,7 +305,7 @@ Format your response EXACTLY as JSON (no markdown, no backticks):
           <div style={{background:"#f97316",width:36,height:36,borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:15,color:"#fff",flexShrink:0}}>I&M</div>
           <div>
             <div style={{fontWeight:700,fontSize:17,color:"#f1f5f9"}}>Production Command</div>
-            <div style={{fontSize:12,color:"#4b5563",marginTop:1}}>{today}</div>
+            <div style={{fontSize:11,color:"#f97316",marginTop:1,fontWeight:600,letterSpacing:"0.06em",textTransform:"uppercase"}}>Fifty Years Built It. The Next Fifty Will Define It.</div>
           </div>
         </div>
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
@@ -356,10 +373,19 @@ Format your response EXACTLY as JSON (no markdown, no backticks):
                 return(
                   <div key={dept.id} className="deptcard" style={{borderLeft:`4px solid ${dept.color}`}} onClick={()=>setExpandedDept(isExp?null:dept.id)}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-                      <div>
-                        <div style={{fontWeight:600,fontSize:15,color:"#f1f5f9",marginBottom:3}}>{dept.name}</div>
-                        <div style={{fontSize:13,color:"#64748b"}}>{dept.supervisor}</div>
-                        <div style={{fontSize:12,color:"#374151",marginTop:2}}>{dept.location}</div>
+                      <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
+                        <label style={{flexShrink:0,cursor:"pointer"}} onClick={e=>e.stopPropagation()}>
+                          <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>handleSupervisorPhoto(dept.id,e)} />
+                          {supervisorPhotos[dept.id]
+                            ? <img src={supervisorPhotos[dept.id]} alt={dept.supervisor} style={{width:38,height:38,borderRadius:"50%",objectFit:"cover",border:`2px solid ${dept.color}`}} />
+                            : <div style={{width:38,height:38,borderRadius:"50%",background:"#1e2d45",border:`2px solid ${dept.color}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:700,color:dept.color}}>{getInitials(dept.supervisor)}</div>
+                          }
+                        </label>
+                        <div>
+                          <div style={{fontWeight:600,fontSize:15,color:"#f1f5f9",marginBottom:3}}>{dept.name}</div>
+                          <div style={{fontSize:13,color:"#64748b"}}>{dept.supervisor}</div>
+                          <div style={{fontSize:12,color:"#374151",marginTop:2}}>{dept.location}</div>
+                        </div>
                       </div>
                       <div style={{textAlign:"right"}}>
                         <div style={{display:"flex",alignItems:"center",gap:6,justifyContent:"flex-end"}}>
@@ -379,6 +405,13 @@ Format your response EXACTLY as JSON (no markdown, no backticks):
                         <div style={{fontSize:12,color:"#64748b",fontWeight:600,textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:10}}>Staff</div>
                         {staff.map(s=>(
                           <div key={s.id} style={{display:"flex",alignItems:"center",gap:8,marginBottom:7}}>
+                            <label style={{flexShrink:0,cursor:"pointer"}}>
+                              <input type="file" accept="image/*" style={{display:"none"}} onChange={e=>handleStaffPhoto(dept.id,s.id,e)} />
+                              {s.photo
+                                ? <img src={s.photo} alt={s.name} style={{width:26,height:26,borderRadius:"50%",objectFit:"cover",border:`1px solid ${dept.color}`}} />
+                                : <div style={{width:26,height:26,borderRadius:"50%",background:"#1e2d45",border:`1px solid ${dept.color}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,fontWeight:700,color:dept.color}}>{getInitials(s.name)}</div>
+                              }
+                            </label>
                             <span style={{fontSize:13,color:"#64748b",flex:1,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{s.position}</span>
                             <input className="staffinput" placeholder="Name..." value={s.name} onChange={e=>updateStaff(dept.id,s.id,e.target.value)} />
                           </div>

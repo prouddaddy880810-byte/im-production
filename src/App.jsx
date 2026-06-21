@@ -294,6 +294,7 @@ Format your response EXACTLY as JSON (no markdown, no backticks):
         <div style={{display:"flex",gap:8,alignItems:"center"}}>
           {openFlags>0&&<span className="badge" style={{borderColor:"#ef4444",color:"#ef4444"}}>⚑ {openFlags} Flag{openFlags>1?"s":""}</span>}
           {downDepts>0&&<span className="badge" style={{borderColor:"#ef4444",color:"#ef4444"}}>▼ {downDepts} Down</span>}
+          <a href="https://maintenance-portal-rho.vercel.app/" target="_blank" rel="noopener noreferrer" className="badge" style={{textDecoration:"none",cursor:"pointer",borderColor:"#3b82f6",color:"#3b82f6"}}>🔧 Maintenance Portal ↗</a>
           <span className="badge">● Live</span>
         </div>
       </div>
@@ -518,7 +519,10 @@ Format your response EXACTLY as JSON (no markdown, no backticks):
           <>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
               <div className="sec-title">Downtime Log</div>
-              <button className="btn btn-danger btn-sm" onClick={()=>setShowDowntimeForm(!showDowntimeForm)}>+ Log Downtime</button>
+              <div style={{display:"flex",gap:8}}>
+                <a href="https://maintenance-portal-rho.vercel.app/" target="_blank" rel="noopener noreferrer" className="btn btn-secondary btn-sm" style={{textDecoration:"none",borderColor:"#3b82f6",color:"#3b82f6"}}>🔧 Open Maintenance Portal ↗</a>
+                <button className="btn btn-danger btn-sm" onClick={()=>setShowDowntimeForm(!showDowntimeForm)}>+ Log Downtime</button>
+              </div>
             </div>
             {showDowntimeForm&&(
               <div className="form-panel">
